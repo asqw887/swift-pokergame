@@ -12,34 +12,60 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.view.backgroundColor = UIColor(patternImage: UIImage(named: "bg_pattern") ?? UIImage())
+        setupBackgroundPattern()
+//        setupCards()
+         setupCardsWithStack()
         
-        configureCard()
+        
                                             
     }
     
-    func configureCard(){
+    func setupBackgroundPattern() {
+        if let patternImage = UIImage(named: "bg_pattern") {
+            self.view.backgroundColor = UIColor(patternImage: patternImage)
+        }
+    }
+
+    func setupCards() {
+        let cardViews = (0..<7).map { _ -> UIImageView in
+            guard let cardBackImage = UIImage(named: "card-back") else { return UIImageView() }
+            let cardView = UIImageView(image: cardBackImage)
+            return cardView
+        }
         
-        let screenWidth = UIScreen.main.bounds.size.width
-        
-        for i in 0..<7 {
+        cardViews.enumerated().forEach { (i, cardView) in
+            view.addSubview(cardView)
+            cardView.translatesAutoresizingMaskIntoConstraints = false
             
-            let cardImage = UIImage(named: "card-back") ?? UIImage()
-            let cardLeftXPosition: CGFloat =  CGFloat(CGFloat(i) * (screenWidth/7.0) + 5.0 )
-        
-            let card = UIImageView(frame: CGRect(x: cardLeftXPosition , y: 70, width: screenWidth/7.0 - 5, height: (screenWidth/7.0 - 5) * 1.25))
+            let leadingAnchor = i == 0 ? view.safeAreaLayoutGuide.leadingAnchor : cardViews[i-1].trailingAnchor
+            cardView.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
             
-            card.image = cardImage
-            card.contentMode = .scaleAspectFit
-      
-            self.view.addSubview(card)
+            cardView.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor).isActive = true
+            cardView.widthAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.widthAnchor, multiplier: CGFloat(1.0/7.0)).isActive = true
+            cardView.heightAnchor.constraint(equalTo: cardView.widthAnchor, multiplier: CGFloat(1.27)).isActive = true
         }
     }
     
-    override var preferredStatusBarStyle: UIStatusBarStyle {
-        return .lightContent
+    func setupCardsWithStack() {
+        let stackView = UIStackView()
+        view.addSubview(stackView)
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.axis = .horizontal
+        stackView.distribution = .fillEqually
+        stackView.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor).isActive = true
+        stackView.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor).isActive = true
+        stackView.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor).isActive = true
+
+        for _ in (0..<7) {
+            guard let cardBackImage = UIImage(named: "card-back") else { continue }
+            let cardView = UIImageView(image: cardBackImage)
+            cardView.heightAnchor.constraint(equalTo: cardView.widthAnchor, multiplier: CGFloat(1.27)).isActive = true
+            stackView.addArrangedSubview(cardView)
+        }
     }
-
-
+    
 }
+
+
+
 
